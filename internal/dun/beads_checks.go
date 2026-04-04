@@ -7,15 +7,26 @@ import (
 	"strings"
 )
 
-// beadsIssue is the internal representation of a beads issue
+// beadsCLI returns the command and args to query beads.
+// Prefers "ddx bead" if available, falls back to "bd".
+func beadsCLI(subcommand string) (string, []string) {
+	if _, err := exec.LookPath("ddx"); err == nil {
+		return "ddx", []string{"bead", subcommand, "--json"}
+	}
+	return "bd", []string{"--json", subcommand}
+}
+
+// beadsIssue is the internal representation of a beads issue.
+// Supports both DDx bead format (deps) and bd format (blocked_by/blocks).
 type beadsIssue struct {
 	ID          string   `json:"id"`
 	Title       string   `json:"title"`
 	Status      string   `json:"status"`
 	Priority    int      `json:"priority"`
 	Labels      []string `json:"labels"`
-	BlockedBy   []string `json:"blocked_by"`
-	Blocks      []string `json:"blocks"`
+	Deps        []string `json:"deps"`        // DDx bead format
+	BlockedBy   []string `json:"blocked_by"`   // bd format (legacy)
+	Blocks      []string `json:"blocks"`       // bd format (legacy)
 	Description string   `json:"description,omitempty"`
 }
 
@@ -38,8 +49,9 @@ func toIssues(beads []beadsIssue) []Issue {
 
 // runBeadsReadyCheck finds workable beads (no blockers, not in progress)
 func runBeadsReadyCheck(root string, def CheckDefinition) (CheckResult, error) {
-	// Run bd ready to get workable beads
-	cmd := exec.Command("bd", "--json", "ready")
+	// Query ready beads via ddx bead (preferred) or bd (fallback)
+	bin, args := beadsCLI("ready")
+	cmd := exec.Command(bin, args...)
 	cmd.Dir = root
 	output, err := cmd.Output()
 	if err != nil {
@@ -87,8 +99,9 @@ func runBeadsReadyCheck(root string, def CheckDefinition) (CheckResult, error) {
 
 // runBeadsCriticalPathCheck identifies the critical path through blocked beads
 func runBeadsCriticalPathCheck(root string, def CheckDefinition) (CheckResult, error) {
-	// Run bd blocked to get blocked beads
-	cmd := exec.Command("bd", "--json", "blocked")
+	// Query blocked beads via ddx bead (preferred) or bd (fallback)
+	bin, args := beadsCLI("blocked")
+	cmd := exec.Command(bin, args...)
 	cmd.Dir = root
 	output, err := cmd.Output()
 	if err != nil {
@@ -129,8 +142,9 @@ func runBeadsCriticalPathCheck(root string, def CheckDefinition) (CheckResult, e
 
 // runBeadsSuggestCheck suggests the next bead to work on
 func runBeadsSuggestCheck(root string, def CheckDefinition) (CheckResult, error) {
-	// Get ready beads first
-	cmd := exec.Command("bd", "--json", "ready")
+	// Get ready beads via ddx bead (preferred) or bd (fallback)
+	bin, args := beadsCLI("ready")
+	cmd := exec.Command(bin, args...)
 	cmd.Dir = root
 	output, err := cmd.Output()
 	if err != nil {
@@ -176,8 +190,8 @@ func buildBeadsPrompt(issue beadsIssue) string {
 	}
 	return "Work on this bead: " + issue.ID + " - " + issue.Title + "\n\n" +
 		"To get details:\n" +
-		"- bd show " + issue.ID + "\n" +
-		"- bd comments " + issue.ID
+		"- ddx bead show " + issue.ID + "\n" +
+		"- ddx bead dep tree " + issue.ID
 }
 
 // findCriticalPath finds beads that block the most other beads
@@ -188,7 +202,12 @@ func findCriticalPath(issues []beadsIssue) []beadsIssue {
 
 	for _, issue := range issues {
 		issueMap[issue.ID] = issue
-		for _, blocked := range issue.BlockedBy {
+		// Support both DDx bead deps and bd blocked_by
+		blockers := issue.Deps
+		if len(blockers) == 0 {
+			blockers = issue.BlockedBy
+		}
+		for _, blocked := range blockers {
 			blockCount[blocked]++
 		}
 	}
