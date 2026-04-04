@@ -22,14 +22,11 @@ jobs:
       - name: Test
         run: go test ./... -coverprofile=coverage.out
 
-      - name: Check coverage
-        run: |
-          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-          echo "Coverage: $COVERAGE%"
-          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-            echo "Coverage below 80%"
-            exit 1
-          fi
+      - name: Check coverage ratchets
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          config: .testcoverage.yml
+          profile: coverage.out
 
       - name: Install staticcheck
         run: go install honnef.co/go/tools/cmd/staticcheck@latest

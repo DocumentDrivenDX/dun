@@ -1,0 +1,15 @@
+# Test coverage ratchets for dun
+# Thresholds set just below current coverage levels — they can only go UP.
+#
+# Current levels (2026-04-04):
+#   cmd/dun:                  75.7%
+#   internal/dun:             90.8%
+#   internal/plugins/builtin: 100.0%
+#   internal/update:          85.8%
+#   internal/version:         100.0%
+#   TOTAL:                    86.6%
+
+threshold:
+  file: 0
+  package: 70
+  total: 84
