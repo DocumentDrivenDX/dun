@@ -41,14 +41,23 @@ prompt envelopes by default, with optional auto execution when configured.
 - **Drift Analyzer**: compares docs and code to identify misalignment.
 - **Change Planner**: produces ordered updates across artifacts.
 - **Automation Policy**: enforces manual/plan/auto/yolo behavior.
+- **DDx Agent Service** (`ddx agent run`): external service for agent-type
+  checks that require harness dispatch. Dun delegates agent invocation, quorum,
+  and session logging to DDx rather than owning its own harness abstraction.
+- **DDx Bead Service** (`ddx bead`): external service for beads-aware check
+  types (beads-ready, beads-critical-path, beads-suggest). Dun queries beads
+  via `ddx bead` commands, not by reading storage files directly.
 
 ## Data Flow
 
 1. CLI loads plugins and builds a plan.
 2. Rule checks run and emit results.
-3. Agent checks emit prompt envelopes (default).
-4. Optional auto mode runs the agent and parses responses.
-5. Drift analyzer and planner identify downstream changes when docs shift.
+3. Agent checks delegate to DDx agent service (`ddx agent run`) for harness
+   dispatch, quorum, and session logging.
+4. Beads-aware checks query DDx bead service (`ddx bead`) for work-item state.
+5. Agent checks emit prompt envelopes (default).
+6. Optional auto mode runs the agent and parses responses.
+7. Drift analyzer and planner identify downstream changes when docs shift.
 
 ## Command Flows
 
