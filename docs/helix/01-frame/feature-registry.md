@@ -11,11 +11,11 @@ This registry tracks the core Dun features and their current status.
 | F-005 | Git Hygiene | P0 | In progress | Ensure clean working tree + hook checks |
 | F-006 | Doc Reconciliation | P0 | In progress | Detect drift and propagate updates |
 | F-007 | Automation Slider | P0 | In progress | Manual <-> yolo execution policy |
-| F-008 | Deterministic check plan | P0 | Planned | Stable ordering and IDs (no spec file yet) |
-| F-009 | Helix plugin (docs + gates) | P0 | Planned | Validate Helix artifacts and gates (no spec file yet) |
+| F-008 | Deterministic check plan | P0 | Implemented | Stable ordering and IDs via sortPlan |
+| F-009 | Helix plugin (docs + gates) | P0 | Implemented | Validate Helix artifacts and gates |
 | F-010 | Changed-only checks | P1 | Planned | Scope checks to git diff (no spec file yet) |
 | F-011 | Quality ratchet | P1 | Planned | Baseline compare to prevent regressions (no spec file yet) |
-| F-012 | External plugin loading | P2 | Planned | Load plugin dirs via config (no spec file yet) |
+| F-012 | External plugin loading | P2 | Implemented | Load plugin dirs from user and project paths |
 | F-013 | Reserved | - | Planned | (no spec file yet) |
 | F-014 | Go Quality Checks | P0 | In progress | Tests, coverage, vet, staticcheck |
 | F-016 | Doc DAG + Review Stamps | P0 | Planned | Frontmatter DAG, stale detection, stamp command |
