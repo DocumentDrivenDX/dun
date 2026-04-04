@@ -22,7 +22,7 @@ $ dun [command] [options] [arguments]
 **Usage**: `$ dun check [options]`
 
 **Options**:
-- `--format` : Output format (`prompt`, `llm`, or `json`, default `prompt`)
+- `--format` : Output format (`llm` or `json`, default `json`)
 - `--changed` : Limit checks to changed files (default `false`)
 - `--timeout` : Global timeout in seconds (default `600`)
 - `--check-timeout` : Per-check timeout in seconds (default `120`)
