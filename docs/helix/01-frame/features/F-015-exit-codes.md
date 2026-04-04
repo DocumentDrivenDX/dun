@@ -35,9 +35,9 @@ outcomes reliably.
   returns `ExitSuccess` even when individual checks report `Status: fail` or
   `Status: warn`; it only returns `ExitCheckFailed` on engine or encoding
   errors. Clarify whether exit code 1 should reflect check statuses.
-- `ExitUpdateError` is defined and listed in help text, but update/version
-  flows return `ExitRuntimeError` on update failures; align implementation or
-  spec.
+- ~~`ExitUpdateError` is defined and listed in help text, but update/version
+  flows return `ExitRuntimeError` on update failures~~ — resolved: `runUpdate`
+  and `runVersion --check` now return `ExitUpdateError`.
 - Warning-only checks still map to exit code 0 because process exit codes do
   not reflect check results; confirm whether warnings should ever return
   non-zero.
@@ -67,8 +67,8 @@ outcomes reliably.
 - `dun loop` returns `ExitQuorumConflict` or `ExitQuorumAborted` when quorum
   execution fails, otherwise `ExitSuccess` when the loop completes or exits
   due to limits.
-- `dun update` and `dun version --check` currently surface update failures as
-  `ExitRuntimeError`.
+- `dun update` and `dun version --check` return `ExitUpdateError` for update
+  failures.
 
 ## Acceptance Criteria
 

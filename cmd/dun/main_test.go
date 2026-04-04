@@ -1707,9 +1707,9 @@ func TestRunVersionCheck(t *testing.T) {
 	var stderr bytes.Buffer
 	// The --check flag tries to check for updates, may fail due to network
 	code := run([]string{"version", "--check"}, &stdout, &stderr)
-	// Either succeeds or fails with runtime error (network issue)
-	if code != dun.ExitSuccess && code != dun.ExitRuntimeError {
-		t.Fatalf("expected success or runtime error, got %d", code)
+	// Either succeeds or fails with update error (network issue)
+	if code != dun.ExitSuccess && code != dun.ExitUpdateError {
+		t.Fatalf("expected success or update error, got %d", code)
 	}
 	// Should have version info at least
 	output := stdout.String()
@@ -1735,8 +1735,8 @@ func TestRunUpdateDryRun(t *testing.T) {
 	// Dry run mode should output plan without applying
 	code := run([]string{"update", "--dry-run"}, &stdout, &stderr)
 	// May succeed or fail depending on network - just verify it runs
-	if code != dun.ExitSuccess && code != dun.ExitRuntimeError {
-		t.Fatalf("expected success or runtime error, got %d", code)
+	if code != dun.ExitSuccess && code != dun.ExitUpdateError {
+		t.Fatalf("expected success or update error, got %d", code)
 	}
 }
 
@@ -2293,8 +2293,8 @@ func TestRunUpdateAlreadyLatest(t *testing.T) {
 	// This will check against GitHub API - if it succeeds, we're testing the "already latest" path
 	// The test verifies the code runs without crashing
 	code := run([]string{"update"}, &stdout, &stderr)
-	// May be ExitSuccess (already latest) or ExitRuntimeError (network/no release)
-	if code != dun.ExitSuccess && code != dun.ExitRuntimeError {
+	// May be ExitSuccess (already latest) or ExitUpdateError (network/no release)
+	if code != dun.ExitSuccess && code != dun.ExitUpdateError {
 		t.Fatalf("unexpected code %d: %s", code, stderr.String())
 	}
 }
@@ -2305,7 +2305,7 @@ func TestRunUpdateForceFlag(t *testing.T) {
 	// Test with --force flag
 	code := run([]string{"update", "--force", "--dry-run"}, &stdout, &stderr)
 	// With --dry-run, should succeed after checking for updates
-	if code != dun.ExitSuccess && code != dun.ExitRuntimeError {
+	if code != dun.ExitSuccess && code != dun.ExitUpdateError {
 		t.Fatalf("unexpected code %d: %s", code, stderr.String())
 	}
 }

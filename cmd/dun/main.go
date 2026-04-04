@@ -1254,7 +1254,7 @@ func runVersion(args []string, stdout io.Writer, stderr io.Writer) int {
 		release, hasUpdate, err := updater.CheckForUpdate()
 		if err != nil {
 			fmt.Fprintf(stderr, "check for update failed: %v\n", err)
-			return dun.ExitRuntimeError
+			return dun.ExitUpdateError
 		}
 		if hasUpdate {
 			fmt.Fprintf(stdout, "Update available: %s (current: %s)\n", release.TagName, info.Version)
@@ -1283,7 +1283,7 @@ func runUpdate(args []string, stdout io.Writer, stderr io.Writer) int {
 	release, hasUpdate, err := updater.CheckForUpdate()
 	if err != nil {
 		fmt.Fprintf(stderr, "check for update failed: %v\n", err)
-		return dun.ExitRuntimeError
+		return dun.ExitUpdateError
 	}
 
 	if !hasUpdate && !*force {
@@ -1293,7 +1293,7 @@ func runUpdate(args []string, stdout io.Writer, stderr io.Writer) int {
 
 	if release == nil {
 		fmt.Fprintln(stderr, "No releases found.")
-		return dun.ExitRuntimeError
+		return dun.ExitUpdateError
 	}
 
 	fmt.Fprintf(stdout, "Latest version: %s\n", release.TagName)
@@ -1307,13 +1307,13 @@ func runUpdate(args []string, stdout io.Writer, stderr io.Writer) int {
 	downloadPath, err := updater.DownloadRelease(release)
 	if err != nil {
 		fmt.Fprintf(stderr, "download failed: %v\n", err)
-		return dun.ExitRuntimeError
+		return dun.ExitUpdateError
 	}
 
 	fmt.Fprintln(stdout, "Installing...")
 	if err := updater.ApplyUpdate(downloadPath); err != nil {
 		fmt.Fprintf(stderr, "install failed: %v\n", err)
-		return dun.ExitRuntimeError
+		return dun.ExitUpdateError
 	}
 
 	fmt.Fprintf(stdout, "Successfully updated to %s\n", release.TagName)

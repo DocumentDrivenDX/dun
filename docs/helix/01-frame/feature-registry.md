@@ -18,6 +18,7 @@ This registry tracks the core Dun features and their current status.
 | F-012 | External plugin loading | P2 | Implemented | Load plugin dirs from user and project paths |
 | F-013 | Reserved | - | Planned | (no spec file yet) |
 | F-014 | Go Quality Checks | P0 | In progress | Tests, coverage, vet, staticcheck |
+| F-015 | Exit Codes | P1 | Implemented | Deterministic CLI exit codes for CI |
 | F-016 | Doc DAG + Review Stamps | P0 | Planned | Frontmatter DAG, stale detection, stamp command |
 | F-017 | Autonomous iteration loop | P0 | Planned | `dun check --prompt` + `dun loop` |
 | F-018 | Agent quorum | P1 | Planned | Quorum-based loop decisions |
