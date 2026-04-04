@@ -125,7 +125,7 @@ CHECK MODE:
     --config     Config file path (default .dun/config.yaml; also loads user config)
     --prompt     Output the loop prompt for the current repo state
     --all        Include passing checks in prompt output
-    --format     Output format: prompt, llm, json
+    --format     Output format: llm, json (default: json)
     --automation Mode: manual, plan, auto, yolo (default: auto)
     --ignore-version  Skip .ddx-version check
 
@@ -230,7 +230,7 @@ func runCheck(args []string, stdout io.Writer, stderr io.Writer) int {
 	fs := flag.NewFlagSet("check", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	configPath := fs.String("config", explicitConfig, "path to config file (default .dun/config.yaml if present; also loads user config)")
-	format := fs.String("format", "prompt", "output format (prompt|llm|json)")
+	format := fs.String("format", "json", "output format (llm|json)")
 	promptOut := fs.Bool("prompt", false, "output loop prompt")
 	allChecks := fs.Bool("all", false, "include passing checks in prompt output")
 	automation := fs.String("automation", opts.AutomationMode, "automation mode (manual|plan|auto|yolo)")
@@ -292,7 +292,7 @@ func runCheck(args []string, stdout io.Writer, stderr io.Writer) int {
 	switch *format {
 	case "llm":
 		printLLM(stdout, result)
-	case "json", "prompt":
+	case "json":
 		compact := compactResultForOutput(result, root)
 		if err := json.NewEncoder(stdout).Encode(compact); err != nil {
 			fmt.Fprintf(stderr, "encode json: %v\n", err)
