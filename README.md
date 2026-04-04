@@ -52,7 +52,6 @@ dun check
 Planned options:
 
 ```bash
-dun check --format=prompt
 dun check --format=llm
 dun check --format=json
 dun check --automation=plan
