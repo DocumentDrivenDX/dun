@@ -66,7 +66,10 @@ func runAgentCheck(root string, plugin Plugin, def CheckDefinition, config Agent
 		agentCmd = os.Getenv("DUN_AGENT_CMD")
 	}
 	if agentCmd == "" {
-		return promptResult(def, envelope, "agent not configured", "set --agent-cmd or DUN_AGENT_CMD to run in auto mode"), nil
+		agentCmd = resolveDdxAgent(opts)
+	}
+	if agentCmd == "" {
+		return promptResult(def, envelope, "agent not configured", "set --agent-cmd or DUN_AGENT_CMD, or install ddx"), nil
 	}
 
 	timeout := opts.AgentTimeout
@@ -254,6 +257,25 @@ func hasGlob(path string) bool {
 }
 
 var relPath = filepath.Rel
+
+// resolveDdxAgent returns a ddx agent run command if DDx delegation is enabled.
+// Requires DUN_USE_DDX_AGENT=1 env var AND ddx on PATH.
+func resolveDdxAgent(opts Options) string {
+	if os.Getenv("DUN_USE_DDX_AGENT") != "1" {
+		return ""
+	}
+	if _, err := exec.LookPath("ddx"); err != nil {
+		return ""
+	}
+	harness := opts.AgentHarness
+	if harness == "" {
+		harness = os.Getenv("DUN_AGENT_HARNESS")
+	}
+	if harness == "" {
+		harness = "codex"
+	}
+	return fmt.Sprintf("ddx agent run --harness %s --text", harness)
+}
 
 func execAgent(cmdStr, prompt string, timeout time.Duration) (AgentResponse, error) {
 	output, err := execAgentOutput(cmdStr, prompt, timeout)

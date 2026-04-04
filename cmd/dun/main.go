@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"sort"
 	"strings"
 	"sync"
@@ -830,7 +831,12 @@ func parseHarnessModelOverrides(raw string) (map[string]string, error) {
 }
 
 func callHarnessImpl(harnessName, prompt, automation string) (string, error) {
-	// Convert automation string to AutomationMode
+	// Try DDx agent service first if available and DUN_USE_DDX_AGENT is set
+	if useDdxAgent() {
+		return callDdxAgent(harnessName, prompt, automation)
+	}
+
+	// Fallback: use dun's built-in harness dispatch
 	var mode dun.AutomationMode
 	switch automation {
 	case "manual":
@@ -845,7 +851,6 @@ func callHarnessImpl(harnessName, prompt, automation string) (string, error) {
 		mode = dun.AutomationAuto
 	}
 
-	// Use a timeout context to prevent hanging on unresponsive harnesses
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
@@ -856,6 +861,37 @@ func callHarnessImpl(harnessName, prompt, automation string) (string, error) {
 	}
 
 	return result.Response, nil
+}
+
+// useDdxAgent returns true if dun should delegate agent dispatch to ddx.
+// Controlled by DUN_USE_DDX_AGENT=1 env var. When set and ddx is available,
+// dun calls `ddx agent run` instead of its built-in harness dispatch.
+func useDdxAgent() bool {
+	if os.Getenv("DUN_USE_DDX_AGENT") != "1" {
+		return false
+	}
+	_, err := exec.LookPath("ddx")
+	return err == nil
+}
+
+// callDdxAgent delegates a harness call to `ddx agent run`.
+func callDdxAgent(harnessName, prompt, automation string) (string, error) {
+	args := []string{"agent", "run", "--harness", harnessName}
+	model := resolveHarnessModel(harnessName)
+	if model != "" {
+		args = append(args, "--model", model)
+	}
+	args = append(args, "--text", prompt)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "ddx", args...)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("ddx agent run failed: %w", err)
+	}
+	return string(output), nil
 }
 
 func callHarnessStreamingImpl(harnessName, prompt, automation string, stdout, stderr io.Writer) (string, error) {
