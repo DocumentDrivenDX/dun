@@ -1,6 +1,10 @@
 # Beads
 .beads/
 
+# HELIX runtime
+.helix-logs/
+.helix/
+
 # Runtime
 .runtime/
 state.json

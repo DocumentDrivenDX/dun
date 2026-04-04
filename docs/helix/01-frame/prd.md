@@ -50,7 +50,20 @@ Out of scope:
 - Agent operators who need fast, reliable feedback loops.
 - Engineering leads who want consistent quality gates.
 
+## Dependencies
+
+- **DDx agent service** (`ddx agent run`) for agent-type checks that require
+  harness dispatch. Dun no longer owns its own harness abstraction; it calls
+  DDx for agent invocation, quorum, and session logging.
+- **DDx bead service** (`ddx bead`) for beads-aware check types (beads-ready,
+  beads-critical-path, beads-suggest). Dun queries beads via `ddx bead`
+  commands, not by reading storage files directly.
+- Dun's check discovery engine, plugin system, and execution loop remain
+  dun-owned.
+
 ## Non-Goals
 
 - Building a general-purpose build system.
 - Providing a graphical UI.
+- Owning agent harness dispatch (that's DDx).
+- Owning work-item tracking (that's DDx beads).
