@@ -69,8 +69,7 @@ func TestBeadsIssueToIssue(t *testing.T) {
 		Status:      "open",
 		Priority:    1,
 		Labels:      []string{"feature", "urgent"},
-		BlockedBy:   []string{"BEAD-100"},
-		Blocks:      []string{"BEAD-200"},
+		Dependencies: []beadsDependency{{DependsOnID: "BEAD-100", Type: "blocks"}},
 		Description: "Detailed description",
 	}
 
@@ -284,7 +283,7 @@ func TestRunBeadsCriticalPathCheck_Success(t *testing.T) {
 	binDir := stubBdBinary(t)
 	t.Setenv("PATH", binDir)
 	// Create beads where BEAD-1 blocks BEAD-2 and BEAD-3
-	t.Setenv("DUN_BD_BLOCKED_OUTPUT", `[{"id":"BEAD-1","title":"Blocker","blocked_by":[]},{"id":"BEAD-2","title":"Blocked 1","blocked_by":["BEAD-1"]},{"id":"BEAD-3","title":"Blocked 2","blocked_by":["BEAD-1"]}]`)
+	t.Setenv("DUN_BD_BLOCKED_OUTPUT", `[{"id":"BEAD-1","title":"Blocker"},{"id":"BEAD-2","title":"Blocked 1","dependencies":[{"depends_on_id":"BEAD-1","type":"blocks"}]},{"id":"BEAD-3","title":"Blocked 2","dependencies":[{"depends_on_id":"BEAD-1","type":"blocks"}]}]`)
 
 	root := t.TempDir()
 	res, err := runBeadsCriticalPathCheck(root, CheckDefinition{ID: "beads-critical-path"})
@@ -476,9 +475,9 @@ func TestFindCriticalPath_Basic(t *testing.T) {
 	// BEAD-2 blocks BEAD-4
 	issues := []beadsIssue{
 		{ID: "BEAD-1", Title: "Root blocker"},
-		{ID: "BEAD-2", Title: "Blocked by 1", BlockedBy: []string{"BEAD-1"}},
-		{ID: "BEAD-3", Title: "Blocked by 1", BlockedBy: []string{"BEAD-1"}},
-		{ID: "BEAD-4", Title: "Blocked by 2", BlockedBy: []string{"BEAD-2"}},
+		{ID: "BEAD-2", Title: "Blocked by 1", Dependencies: []beadsDependency{{DependsOnID: "BEAD-1", Type: "blocks"}}},
+		{ID: "BEAD-3", Title: "Blocked by 1", Dependencies: []beadsDependency{{DependsOnID: "BEAD-1", Type: "blocks"}}},
+		{ID: "BEAD-4", Title: "Blocked by 2", Dependencies: []beadsDependency{{DependsOnID: "BEAD-2", Type: "blocks"}}},
 	}
 
 	path := findCriticalPath(issues)
@@ -529,13 +528,13 @@ func TestFindCriticalPath_LimitsToFive(t *testing.T) {
 		{ID: "BEAD-6"},
 		{ID: "BEAD-7"},
 		// Beads blocked by the 7 blockers above
-		{ID: "BEAD-A", BlockedBy: []string{"BEAD-1"}},
-		{ID: "BEAD-B", BlockedBy: []string{"BEAD-2"}},
-		{ID: "BEAD-C", BlockedBy: []string{"BEAD-3"}},
-		{ID: "BEAD-D", BlockedBy: []string{"BEAD-4"}},
-		{ID: "BEAD-E", BlockedBy: []string{"BEAD-5"}},
-		{ID: "BEAD-F", BlockedBy: []string{"BEAD-6"}},
-		{ID: "BEAD-G", BlockedBy: []string{"BEAD-7"}},
+		{ID: "BEAD-A", Dependencies: []beadsDependency{{DependsOnID: "BEAD-1", Type: "blocks"}}},
+		{ID: "BEAD-B", Dependencies: []beadsDependency{{DependsOnID: "BEAD-2", Type: "blocks"}}},
+		{ID: "BEAD-C", Dependencies: []beadsDependency{{DependsOnID: "BEAD-3", Type: "blocks"}}},
+		{ID: "BEAD-D", Dependencies: []beadsDependency{{DependsOnID: "BEAD-4", Type: "blocks"}}},
+		{ID: "BEAD-E", Dependencies: []beadsDependency{{DependsOnID: "BEAD-5", Type: "blocks"}}},
+		{ID: "BEAD-F", Dependencies: []beadsDependency{{DependsOnID: "BEAD-6", Type: "blocks"}}},
+		{ID: "BEAD-G", Dependencies: []beadsDependency{{DependsOnID: "BEAD-7", Type: "blocks"}}},
 	}
 
 	path := findCriticalPath(issues)
@@ -553,7 +552,7 @@ func TestFindCriticalPath_BlockerNotInList(t *testing.T) {
 	// BEAD-2 is blocked by BEAD-EXTERNAL which is not in the list
 	issues := []beadsIssue{
 		{ID: "BEAD-1", Title: "In list"},
-		{ID: "BEAD-2", Title: "Blocked by external", BlockedBy: []string{"BEAD-EXTERNAL"}},
+		{ID: "BEAD-2", Title: "Blocked by external", Dependencies: []beadsDependency{{DependsOnID: "BEAD-EXTERNAL", Type: "blocks"}}},
 	}
 
 	path := findCriticalPath(issues)
@@ -829,8 +828,8 @@ func TestBeadsCheckFlow_CriticalPathWhenBlocked(t *testing.T) {
 	t.Setenv("DUN_BD_READY_OUTPUT", `[]`)
 	t.Setenv("DUN_BD_BLOCKED_OUTPUT", `[
 		{"id":"BEAD-ROOT","title":"Root blocker"},
-		{"id":"BEAD-A","title":"Blocked A","blocked_by":["BEAD-ROOT"]},
-		{"id":"BEAD-B","title":"Blocked B","blocked_by":["BEAD-ROOT"]}
+		{"id":"BEAD-A","title":"Blocked A","dependencies":[{"issue_id":"BEAD-A","depends_on_id":"BEAD-ROOT","type":"blocks"}]},
+		{"id":"BEAD-B","title":"Blocked B","dependencies":[{"issue_id":"BEAD-B","depends_on_id":"BEAD-ROOT","type":"blocks"}]}
 	]`)
 
 	root := t.TempDir()
@@ -917,12 +916,12 @@ func TestFindCriticalPath_ComplexDependencies(t *testing.T) {
 	// BEAD-3 blocks BEAD-7 (1 dependent)
 	issues := []beadsIssue{
 		{ID: "BEAD-1"},
-		{ID: "BEAD-2", BlockedBy: []string{"BEAD-1"}},
-		{ID: "BEAD-3", BlockedBy: []string{"BEAD-1"}},
-		{ID: "BEAD-4", BlockedBy: []string{"BEAD-1"}},
-		{ID: "BEAD-5", BlockedBy: []string{"BEAD-2"}},
-		{ID: "BEAD-6", BlockedBy: []string{"BEAD-2"}},
-		{ID: "BEAD-7", BlockedBy: []string{"BEAD-3"}},
+		{ID: "BEAD-2", Dependencies: []beadsDependency{{DependsOnID: "BEAD-1", Type: "blocks"}}},
+		{ID: "BEAD-3", Dependencies: []beadsDependency{{DependsOnID: "BEAD-1", Type: "blocks"}}},
+		{ID: "BEAD-4", Dependencies: []beadsDependency{{DependsOnID: "BEAD-1", Type: "blocks"}}},
+		{ID: "BEAD-5", Dependencies: []beadsDependency{{DependsOnID: "BEAD-2", Type: "blocks"}}},
+		{ID: "BEAD-6", Dependencies: []beadsDependency{{DependsOnID: "BEAD-2", Type: "blocks"}}},
+		{ID: "BEAD-7", Dependencies: []beadsDependency{{DependsOnID: "BEAD-3", Type: "blocks"}}},
 	}
 
 	path := findCriticalPath(issues)

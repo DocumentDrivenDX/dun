@@ -16,18 +16,33 @@ func beadsCLI(subcommand string) (string, []string) {
 	return "bd", []string{"--json", subcommand}
 }
 
+// beadsDependency matches the bd/DDx dependency object format.
+type beadsDependency struct {
+	IssueID     string `json:"issue_id"`
+	DependsOnID string `json:"depends_on_id"`
+	Type        string `json:"type"`
+}
+
 // beadsIssue is the internal representation of a beads issue.
-// Supports both DDx bead format (deps) and bd format (blocked_by/blocks).
+// Field names match bd/DDx bead JSONL format.
 type beadsIssue struct {
-	ID          string   `json:"id"`
-	Title       string   `json:"title"`
-	Status      string   `json:"status"`
-	Priority    int      `json:"priority"`
-	Labels      []string `json:"labels"`
-	Deps        []string `json:"deps"`        // DDx bead format
-	BlockedBy   []string `json:"blocked_by"`   // bd format (legacy)
-	Blocks      []string `json:"blocks"`       // bd format (legacy)
-	Description string   `json:"description,omitempty"`
+	ID           string            `json:"id"`
+	Title        string            `json:"title"`
+	Status       string            `json:"status"`
+	Priority     int               `json:"priority"`
+	IssueType    string            `json:"issue_type"`
+	Labels       []string          `json:"labels"`
+	Dependencies []beadsDependency `json:"dependencies,omitempty"`
+	Description  string            `json:"description,omitempty"`
+}
+
+// depIDs returns a flat list of dependency IDs.
+func (b beadsIssue) depIDs() []string {
+	var ids []string
+	for _, d := range b.Dependencies {
+		ids = append(ids, d.DependsOnID)
+	}
+	return ids
 }
 
 // toIssue converts a beadsIssue to the dun Issue type
@@ -202,13 +217,8 @@ func findCriticalPath(issues []beadsIssue) []beadsIssue {
 
 	for _, issue := range issues {
 		issueMap[issue.ID] = issue
-		// Support both DDx bead deps and bd blocked_by
-		blockers := issue.Deps
-		if len(blockers) == 0 {
-			blockers = issue.BlockedBy
-		}
-		for _, blocked := range blockers {
-			blockCount[blocked]++
+		for _, depID := range issue.depIDs() {
+			blockCount[depID]++
 		}
 	}
 
