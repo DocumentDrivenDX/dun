@@ -1,0 +1,12 @@
+{
+  "project_root": "/home/erik/Projects/dun",
+  "profile": "default",
+  "mode": "watch",
+  "idle_interval": "30s",
+  "max_recovery_cost_usd": 2,
+  "preclaim_timeout": "0s",
+  "request_timeout": "0s",
+  "rate_limit_max_wait": "0s",
+  "route_resolution_timeout": "0s",
+  "spec_version": 1
+}

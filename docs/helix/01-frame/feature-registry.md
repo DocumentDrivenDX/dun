@@ -26,3 +26,4 @@ This registry tracks the core Dun features and their current status.
 | F-020 | Generic command checks | P1 | Planned | Command checks + external plugin loading |
 | F-021 | Beads work routing | P1 | Planned | Surface ready Beads tasks in prompts |
 | F-023 | Check domain model | P1 | In progress | Registry-based check lifecycle, summaries, scoring |
+| F-024 | Prompt evaluation | P1 | Planned | Evaluate prompt quality with rubrics and multi-judge scoring |

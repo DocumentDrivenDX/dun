@@ -1,0 +1,23 @@
+{
+  "id": "worker-20260703T201819-adea",
+  "kind": "work",
+  "state": "exited",
+  "status": "success",
+  "project_root": "/home/erik/Projects/dun",
+  "profile": "default",
+  "poll_interval": "30s",
+  "started_at": "2026-07-03T20:18:19.062226804Z",
+  "finished_at": "2026-07-03T20:18:21.458471108Z",
+  "stdout_path": ".ddx/workers/worker-20260703T201819-adea/worker.log",
+  "spec_path": ".ddx/workers/worker-20260703T201819-adea/spec.json",
+  "lifecycle": [
+    {
+      "action": "start",
+      "actor": "local-operator",
+      "timestamp": "2026-07-03T20:18:19.062226804Z",
+      "detail": "kind=work profile=default"
+    }
+  ],
+  "pid": 3284726,
+  "pgid": 3284726
+}

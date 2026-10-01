@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "project_root": "/home/erik/Projects/dun",
+  "desired_count": 0,
+  "default_spec": {
+    "mode": "watch",
+    "idle_interval": "30s",
+    "max_recovery_cost_usd": 2,
+    "preclaim_timeout": "0s",
+    "request_timeout": "0s",
+    "rate_limit_max_wait": "0s",
+    "route_resolution_timeout": "0s",
+    "spec_version": 1
+  },
+  "restart": {
+    "enabled": false,
+    "max_restarts_per_hour": 6,
+    "backoff": "30s",
+    "backoff_max": "10m0s"
+  },
+  "updated_at": "2026-07-27T10:42:09.155897211Z"
+}

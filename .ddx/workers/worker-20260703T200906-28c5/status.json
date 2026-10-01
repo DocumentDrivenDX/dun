@@ -1,0 +1,23 @@
+{
+  "id": "worker-20260703T200906-28c5",
+  "kind": "work",
+  "state": "exited",
+  "status": "success",
+  "project_root": "/home/erik/Projects/dun",
+  "profile": "default",
+  "poll_interval": "30s",
+  "started_at": "2026-07-03T20:09:06.762046484Z",
+  "finished_at": "2026-07-03T20:09:09.110772627Z",
+  "stdout_path": ".ddx/workers/worker-20260703T200906-28c5/worker.log",
+  "spec_path": ".ddx/workers/worker-20260703T200906-28c5/spec.json",
+  "lifecycle": [
+    {
+      "action": "start",
+      "actor": "local-operator",
+      "timestamp": "2026-07-03T20:09:06.762046484Z",
+      "detail": "kind=work profile=default"
+    }
+  ],
+  "pid": 3229013,
+  "pgid": 3229013
+}

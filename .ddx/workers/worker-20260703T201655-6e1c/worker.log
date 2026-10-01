@@ -1,0 +1,15 @@
+preflight warning: project-local skill layout is degraded (project root: /home/erik/Projects/dun)
+  checked: /home/erik/Projects/dun/.agents/skills/ddx/bead-lifecycle/SKILL.md
+  checked: /home/erik/Projects/dun/.claude/skills/ddx/bead-lifecycle/SKILL.md
+  run: ddx update --force
+  run: ddx doctor
+operator attention: project root has uncommitted tracked changes (docs/helix/01-frame/feature-registry.md); relaunch suppressed until 2026-07-03T20:20:12Z
+
+project: /home/erik/Projects/dun
+worker exited: operator attention required
+attempts: 0  |  closed: 0  |  changed: 0  |  already-satisfied: 0  |  preserved: 0  |  failures: 0
+
+operator attention:
+  project root has uncommitted tracked changes (docs/helix/01-frame/feature-registry.md); relaunch suppressed until 2026-07-03T20:20:12Z
+  project root: /home/erik/Projects/dun
+  dirty paths: docs/helix/01-frame/feature-registry.md
